@@ -1,7 +1,11 @@
 #!/bin/bash
-. downVid.config
-dir="$downPath"
-echo "$dir"
+source ~/Applications/Scripts/HLSDownload/config/downVid.config
+downDir="$HOME/$downPath"
+echo "Download directory: $downDir"
+read filename_raw url < ~/Applications/Scripts/HLSDownload/urls.txt
+echo "Raw filename: $filename_raw"
+echo "URL: $url"
+
 #if [ -z $1 ]
 #then
 #    echo "usage: download-hls URL [name to save]"
@@ -11,26 +15,25 @@ echo "$dir"
 #Filename with .ts ending
 echo "Welcome to the hls-downloader. Enjoy!"
 echo "Filename:"
-filename_raw=$2
-filename="$filename_raw.ts"
+filename_ts="$filename_raw.ts"
+filename_mp4="$filename_raw.mp4"
 #Original filename was the second argument
 #filename=${2:-"save"}.ts
-
+#cd "$HOME"
 #Check if filename exists.
-if [ -f "$filename" ]
+if [ -f "$downDir/$filename_ts" ]
 then
-    echo "File ${filename} already exists!"
+    echo "File ${filename_ts} already exists!"
     exit 1
 fi
 
-echo "Save file to $filename"
+echo "Save file to $downDir/$filename_ts"
 
 
 status="begin"
 count=1
 #echo "URL:"
 #url= read
-url="$1"
 curl "$url" > temp.m3u8
 cat temp.m3u8 | \
 while read line; do
@@ -42,9 +45,9 @@ while read line; do
 
     if [[ $status == "reading" ]]
     then
-        curl -s --show-error "${line}" >> "$filename"
+        curl -s --show-error "${line}" >> "$downDir/$filename_ts"
         status="begin"
-        echo "$count segment(s) downloaded..."
+#        echo "$count segment(s) downloaded..."
         let "count += 1"
         continue
     fi
@@ -58,7 +61,7 @@ while read line; do
     fi
 done
 
-echo "Filename: $filename"
-ffmpeg -i $filename -c copy -bsf:a aac_adtstoasc "$filename_raw.mp4"
-rm $filename
-mv "$filename_raw.mp4" $dir
+echo "Finished Download - Filename: $downDir/$filename_ts"
+ffmpeg -i "$downDir/$filename_ts" -c copy -bsf:a aac_adtstoasc "$downDir/$filename_mp4"
+rm "$downDir/$filename_ts"
+#mv "$downDir/$filename_mp4" $dir
