@@ -16,7 +16,7 @@ chmod u+x download-hls.sh
 ```
   This only needs to be run once.
   
-* Download the media file. You need the remote file(.m3u8)'s URL.
+* Download the media file. You need the remote file(.m3u8)'s URL. You can use the Firefox addon 'Video DownloadHelper' to get the URL.
 ```
 ./download-hls.sh <URL> [filename]
 ```
